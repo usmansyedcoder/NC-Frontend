@@ -1,9 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import process from "process";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  base: process.env.VITE_BASE_PATH || "/react-vite-deploy",
+  plugins: [
+    react(),
+    tailwindcss(), // Tailwind v4 uses this plugin
+  ],
+  base: "/",
+  build: {
+    outDir: "dist",
+    assetsDir: "assets",
+    emptyOutDir: true,
+  },
+  server: {
+    port: 3000,
+    host: true,
+  },
 });

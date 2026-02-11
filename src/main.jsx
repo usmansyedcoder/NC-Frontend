@@ -1,26 +1,18 @@
-// import { StrictMode } from "react";
-// import { BrowserRouter } from "react-router-dom";
-// import { createRoot } from "react-dom/client";
-// import "./index.css";
-// import "./tailwind.css";
-// import App from "./App.jsx";
-
-// ReactDOM.createRoot(document.getElementById("root")).render(
-//   <BrowserRouter>
-//     <App />
-//   </BrowserRouter>
-// );
-
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-import "./index.css";
+import App from "./App.jsx";
 import "./tailwind.css";
-import "./index.css";
+import "aos/dist/aos.css"; // If using AOS animations
+
+// Initialize AOS if using
+import AOS from "aos";
+AOS.init({
+  duration: 800,
+  once: true,
+});
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
