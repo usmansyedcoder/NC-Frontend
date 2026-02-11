@@ -10,6 +10,7 @@ function Contact() {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,7 +26,7 @@ function Contact() {
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!/^[0-9]{10,15}$/.test(formData.phone)) {
-      newErrors.phone = "Enter a valid phone number";
+      newErrors.phone = "Enter a valid phone number (10-15 digits)";
     }
 
     if (!formData.email.trim()) {
@@ -42,40 +43,45 @@ function Contact() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [loading, setLoading] = useState(false); // Add to useState
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || loading) return;
 
     setLoading(true);
+    setErrors({});
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      // ✅ FIXED: Full Vercel backend URL (no VITE_API_URL needed)
+      const response = await fetch(
+        "https://nc-backend-aq8fpjdgw-muhammad-usmans-projects-be41f176.vercel.app/api/contact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
-        alert("✅ Your message has been sent successfully!");
+      if (response.ok) {
+        // Success!
+        alert("✅ Your message has been sent successfully! We'll reply soon.");
         setFormData({ name: "", phone: "", email: "", message: "" });
-        setErrors({});
       } else {
-        // Handle validation errors from backend
-        if (data.errors) {
-          setErrors(data.errors);
-        } else {
-          alert(`❌ ${data.message || "Error sending message"}`);
-        }
+        // Backend validation errors
+        setErrors(
+          data.errors || {
+            general: data.message || "Something went wrong. Please try again.",
+          },
+        );
       }
     } catch (err) {
       console.error("Contact form error:", err);
-      alert(
-        `❌ ${err.message || "Network error. Please check if backend is running on port 5000."}`,
-      );
+      setErrors({
+        general: "Network error. Please try again later.",
+      });
     } finally {
       setLoading(false);
     }
@@ -105,11 +111,11 @@ function Contact() {
           </span>
 
           <h2 className="text-4xl lg:text-5xl font-bold text-[#5bb5ea] mt-4">
-            We’re <span className="text-[#f2bf11]"> Here to</span>
+            We're <span className="text-[#f2bf11]"> Here to</span>
             <span className="text-[#132c56]"> Help You</span>
           </h2>
           <p className="text-[#132c56]/80 font-medium mt-4 max-w-lg">
-            Have questions or ideas? Get in touch, we’re here to listen.
+            Have questions or ideas? Get in touch, we're here to listen.
           </p>
           <p className="text-[#132c56] mt-3 max-w-lg">
             Reach out to our team anytime for project inquiries or
@@ -145,6 +151,12 @@ function Contact() {
         {/* RIGHT FORM */}
         <div className="bg-white rounded-4xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] p-6 sm:p-10 w-full">
           <form className="space-y-5" onSubmit={handleSubmit}>
+            {errors.general && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-red-600 text-sm">{errors.general}</p>
+              </div>
+            )}
+
             <div>
               <input
                 type="text"
@@ -152,7 +164,7 @@ function Contact() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Full name"
-                className="w-full bg-[#f4f3fa] rounded-full px-6 py-4 text-sm text-[#132c56]  focus:outline-none focus:ring-2 focus:ring-[#132c56]"
+                className="w-full bg-[#f4f3fa] rounded-full px-6 py-4 text-sm text-[#132c56] focus:outline-none focus:ring-2 focus:ring-[#132c56]"
               />
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -166,7 +178,7 @@ function Contact() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Phone number"
-                className="w-full bg-[#f4f3fa] rounded-full px-6 py-4 text-sm text-[#132c56]  focus:outline-none focus:ring-2 focus:ring-[#132c56]"
+                className="w-full bg-[#f4f3fa] rounded-full px-6 py-4 text-sm text-[#132c56] focus:outline-none focus:ring-2 focus:ring-[#132c56]"
               />
               {errors.phone && (
                 <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
@@ -199,6 +211,7 @@ function Contact() {
                 <p className="text-red-500 text-xs mt-1">{errors.message}</p>
               )}
             </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -208,7 +221,7 @@ function Contact() {
                   : "hover:bg-[#f2bf11]"
               }`}
             >
-              {loading ? "Sending..." : "Submit"}
+              {loading ? "Sending..." : "Submit Message"}
             </button>
           </form>
         </div>
