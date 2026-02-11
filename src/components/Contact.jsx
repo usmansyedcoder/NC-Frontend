@@ -52,16 +52,13 @@ function Contact() {
 
     try {
       // ✅ FIXED: Full Vercel backend URL (no VITE_API_URL needed)
-      const response = await fetch(
-        "https://nc-backend-gamma.vercel.app/api/contact",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+      const response = await fetch("https://nc-backend-gamma.vercel.app/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 
